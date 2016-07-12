@@ -1,0 +1,1 @@
+The ultimate purpose of this project is to create a system that automates time management, learns and predicts the amount of time each task takes, organizes tasks by priority and time, and sidesteps typical distractions and scheduling hurdles to help me become maximally efficient and on-task.
