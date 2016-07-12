@@ -1,5 +1,7 @@
 import os
 import random
+import time
+import atexit
 
 codejob = 0
 tutorjob = 0
@@ -7,8 +9,28 @@ hcjob = 0
 tempjob = 0
 restojob = 0
 
+TaskList = []
+
 cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
             'Go James!',"You're almost there."]
+
+hours = 0
+minutes = 0
+seconds = 0
+
+start_time = time.time()
+
+def timer():
+    total_time = time.time() - start_time
+    hours = int(total_time / 3600)
+    minutes = int((total_time - (hours*3600)) / 60)
+    seconds = int(total_time - (hours*3600) - (minutes*60))
+    print ("--- %s hours, %s minutes, %s seconds ---" % (hours, minutes, seconds))
+
+atexit.register(timer)
+
+# def NewTask():
+
 
 print 'JOB COUNTER:'
 print 'GOALS:'
@@ -28,16 +50,23 @@ while (prompt != 'EXIT'):
 
     if prompt == '1':
         codejob += 1
+        os.system('clear')
     elif prompt == '2':
         tutorjob += 1
+        os.system('clear')
     elif prompt == '3':
         hcjob += 1
+        os.system('clear')
     elif prompt == '4':
         tempjob += 1
+        os.system('clear')
     elif prompt == '5':
         restojob += 1
+        os.system('clear')
+    elif prompt[:3] == 'add':
+        TaskList.insert(0,prompt[4:])
+        print TaskList
 
-    os.system('clear')
     print "~~JAMES' JOB APPLICATION TRACKER:~~"
     print 'PROGRAMMING: [',
     for i in range(0,codejob):
