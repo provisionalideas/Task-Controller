@@ -10,6 +10,10 @@ tempjob = 0
 restojob = 0
 
 TaskList = []
+storage = open('TaskList.txt','r')
+for line in storage:
+    TaskList.append(line)
+storage.close()
 
 cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
             'Go James!',"You're almost there."]
@@ -27,14 +31,21 @@ def timer():
     seconds = int(total_time - (hours*3600) - (minutes*60))
     print ("--- %s hours, %s minutes, %s seconds ---" % (hours, minutes, seconds))
 
-atexit.register(timer)
+def savelist():
+    storage = open('TaskList.txt','w+')
+    storage.truncate()
+    for item in TaskList:
+        storage.write(item)
+        storage.write("\n")
+    storage.close()
 
-# def NewTask():
+atexit.register(timer)
+atexit.register(savelist)
 
 prompt = ''
 
-while (prompt != 'EXIT'):
-
+while (prompt != 'EXIT') and (prompt != 'exit'):
+#TODO Fix to be case-insensitive
     prompt = raw_input('Enter your command. ')
     os.system('clear')
 
@@ -112,3 +123,28 @@ while (prompt != 'EXIT'):
         print "TASK LIST:"
         for a,b in enumerate(TaskList,1):
             print '{} {}'.format(a,b)
+
+    elif (prompt[:9] == 'completed') or (prompt[:8] == 'finished'):
+        if prompt[:9] == 'completed':
+            for item in TaskList:
+                if prompt[10:] in item:
+                    print item
+        elif prompt[:8] == 'finished':
+            for item in TaskList:
+                if prompt[9:] in item:
+                    print item
+
+
+    elif prompt[:4] == 'list':
+        print "TASK LIST:"
+        for a,b in enumerate(TaskList,1):
+            print '{} {}'.format(a,b)
+
+    elif prompt[:5] == 'clear':
+        TaskList = []
+        storage = open('TaskList.txt','w+')
+        storage.truncate()
+        storage.close()
+
+        #TODO improve list storage system, change storage location
+        #TODO add mechanism to remove completed items from list
