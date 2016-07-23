@@ -25,11 +25,11 @@ ProjectList = []
 storage = open(saveLocation,'r+')
 for line in storage:
     if ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 0):
-        TaskList.append(line)
+        TaskList.append(line.rstrip())
     elif "-*-*-*-*-*-*-*-*-*-*-*-*-" in line:
         toggle = 1
     else:
-        ProjectList.append(line)
+        ProjectList.append(line.rstrip())
 storage.close()
 
 cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
@@ -164,12 +164,18 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     elif prompt[:3] == 'add' or prompt[:3] == 'new':
 
         #TODO make alternative for "add new project"
-        if 'project' in prompt[4:12]:
-            ProjectList.insert(0,prompt[12:])
+        if 'project' in prompt[4:12] or (prompt[3] == 'p'):
+            if prompt[3] =='p':
+                ProjectList.insert(0,prompt[5:])
+            else:
+                ProjectList.insert(0,prompt[12:])
             printTodo('projects')
 
-        elif 'task' in prompt[4:9]:
-            TaskList.insert(0,prompt[9:])
+        elif 'task' in prompt[4:9] or (prompt[3] == 't'):
+            if prompt[3] == 't':
+                TaskList.insert(0,prompt[5:])
+            else:
+                TaskList.insert(0,prompt[9:])
             printTodo('tasks')
 
         else:
@@ -190,24 +196,28 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
     #TODO naturally learn whether something is a task or a project
 
-    elif (prompt[:9] == 'completed') or (prompt[:8] == 'finished'):
-        print prompt[:9]
-        if prompt[:9] == 'completed':
+    elif (prompt[:9] == 'completed') or (prompt[:8] == 'finished') or (prompt[:6] == 'remove'):
+        #ALSO MAKE THE REVERSE POSSIBLE
+        if (prompt[:9] == 'completed') or (prompt[(len(prompt)-9):] == 'completed'):
             for item in TaskList:
                 if prompt[10:] in item:
                     print item
                     options.append(item)
             if len(options) == 1:
                 TaskList.remove(prompt[10:])
+            #INSERT INDICATOR TO UPDATE TASK AS COMPLETED
         elif prompt[:8] == 'finished':
             for item in TaskList:
                 if prompt[9:] in item:
                     print item
                     options.append(item)
+            #INSERT INDICATOR TO UPDATE TASKAS REMOVED
 
                     #OPTIONS....
             if len(options) == 1:
                 TaskList.remove(prompt[9:])
+            # else:
+            #
         print options
         prompt = raw_input("TEST ")
 
@@ -218,7 +228,6 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
     elif prompt[:4] == 'list':
         if len(prompt) > 4:
-            print prompt[5]
             if prompt[5] == 'p':
                 printTodo('projects')
             elif prompt[5] == 't':
