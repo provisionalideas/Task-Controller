@@ -91,6 +91,14 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     prompt = raw_input('Enter your command. ')
     os.system('clear')
 
+    if prompt == "help":
+        print "Available commands:"
+        print "- Apply to jobs."
+        print "- list {projects/tasks}"
+        print "- add {projects/tasks}"
+        print "- start (task)"
+        print "- completed (task)"
+
     if prompt == "Apply to jobs.":
         while prompt in ['Apply to jobs.','1','2','3','4','5']:
 
@@ -208,16 +216,21 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     elif ('completed' in prompt) or ('finished' in prompt) or ('remove' in prompt):
     #(prompt[:9] == 'completed') or (prompt[:8] == 'finished') or (prompt[:6] == 'remove'):
         #ALSO MAKE THE REVERSE POSSIBLE
+        #COMPLETED IS NOW THE PROTOTYPE FOR THE COMPLETION TYPE
         if (prompt[:9] == 'completed') or (prompt[(len(prompt)-9):] == 'completed'):
             #print prompt,"|",prompt[:9],"|",prompt[(len(prompt)-9):]
             for item in TaskList:
                 if prompt[10:] in item:
                     options.append(item)
             if len(options) == 1:
-                if (task_id == options[0]):
-                    if "task_start" in globals():
-                        timer(task_start)
-                    TaskList.remove(prompt[10:])
+                if "task_id" in globals():
+                    if (task_id == options[0]):
+                        if "task_start" in globals():
+                            timer(task_start)
+                TaskList.remove(options[0])
+                random.seed()
+                os.system('say "%(a)s completed. %(b)s"' % {"a":options[0],"b":cheers[random.randint(0,6)]})
+
             #INSERT INDICATOR TO UPDATE TASK AS COMPLETED
         elif prompt[:8] == 'finished':
             for item in TaskList:
