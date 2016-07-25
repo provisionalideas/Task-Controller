@@ -2,6 +2,7 @@ import os
 import random
 import time
 import atexit
+import datetime
 
 codejob = 0
 tutorjob = 0
@@ -12,12 +13,18 @@ toggle = 0
 options = []
 
 saveLocation = os.path.expanduser("~") + "/WorkTracker"
+#create list of databases in a file, read the file, and for item in list...
 if not os.path.exists(saveLocation):
     os.makedirs(saveLocation)
 saveLocation = saveLocation + "/TaskList.txt"
+dbLocation = os.path.expanduser("~") + "/WorkTracker/TrackerDB.txt"
 if not os.path.exists(saveLocation):
     storage = open(saveLocation,'w+')
     storage.close()
+if not os.path.exists(dbLocation):
+    storage = open(dbLocation,'w+')
+    storage.close()
+
 
 TaskList = []
 ProjectList = []
@@ -39,14 +46,16 @@ hours = 0
 minutes = 0
 seconds = 0
 
-start_time = time.time()
+open_time = time.time()
 
-def timer():
+def timer(start_time):
     total_time = time.time() - start_time
     hours = int(total_time / 3600)
     minutes = int((total_time - (hours*3600)) / 60)
     seconds = int(total_time - (hours*3600) - (minutes*60))
     print ("--- %s hours, %s minutes, %s seconds ---" % (hours, minutes, seconds))
+    #Fix timer so it registers and saves length of current task in progress
+    #TODO create storage database for task length
 
 def savelist():
     storage = open(saveLocation,'w+')
@@ -70,13 +79,13 @@ def printTodo(toggle):
         for a,b in enumerate(ProjectList,1):
             print '{} {}'.format(a,b)
 
-
-atexit.register(timer)
+atexit.register(timer,start_time = open_time)
 atexit.register(savelist)
 
 prompt = ''
 
 while (prompt != 'EXIT') and (prompt != 'exit'):
+
 #TODO Fix to be case-insensitive
     options = []
     prompt = raw_input('Enter your command. ')
@@ -196,30 +205,45 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
     #TODO naturally learn whether something is a task or a project
 
-    elif (prompt[:9] == 'completed') or (prompt[:8] == 'finished') or (prompt[:6] == 'remove'):
+    elif ('completed' in prompt) or ('finished' in prompt) or ('remove' in prompt):
+    #(prompt[:9] == 'completed') or (prompt[:8] == 'finished') or (prompt[:6] == 'remove'):
         #ALSO MAKE THE REVERSE POSSIBLE
         if (prompt[:9] == 'completed') or (prompt[(len(prompt)-9):] == 'completed'):
+            #print prompt,"|",prompt[:9],"|",prompt[(len(prompt)-9):]
             for item in TaskList:
                 if prompt[10:] in item:
-                    print item
                     options.append(item)
             if len(options) == 1:
-                TaskList.remove(prompt[10:])
+                if (task_id == options[0]):
+                    if "task_start" in globals():
+                        timer(task_start)
+                    TaskList.remove(prompt[10:])
             #INSERT INDICATOR TO UPDATE TASK AS COMPLETED
         elif prompt[:8] == 'finished':
             for item in TaskList:
                 if prompt[9:] in item:
-                    print item
                     options.append(item)
+            if len(options) == 1:
+                if (task_id == options[0]):
+                    if "task_start" in globals():
+                        timer(task_start)
+                TaskList.remove(prompt[9:])
             #INSERT INDICATOR TO UPDATE TASKAS REMOVED
 
                     #OPTIONS....
+            #GENERALIZE THIS PIECE AS DEFINED FUNCTION
+        elif prompt[:6] == 'remove':
+            for item in TaskList:
+                if prompt[7:] in item:
+                    options.append(item)
             if len(options) == 1:
-                TaskList.remove(prompt[9:])
+                if (task_id == options[0]):
+                    if "task_start" in globals():
+                        timer(task_start)
+                TaskList.remove(prompt[7:])
+                #CHANGE STORAGE VALUE AS "TERMINATED"
             # else:
             #
-        print options
-        prompt = raw_input("TEST ")
 
         #TODO add task removal component
         #TODO remove item from task or project LIST
@@ -264,8 +288,11 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                                 counter = counter + 1
                         if counter != 1:
                             print "try again"
-                        else:
-                            print "finish this part"
+                    else:
+                        task_start = time.time()
+                        task_id = options[0]
+                        print "Starting task \"%(x)s\" at %(y)s" % {"x":task_id,"y":datetime.datetime.now().strftime("%I:%M:%S %p, %A, %b %d, %Y")}
+                        #fix this so each task has a UID in the database
         else:
             printTodo('tasks')
             prompt = raw_input("Which task do you want to start? ")
