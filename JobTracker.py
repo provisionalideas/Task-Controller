@@ -27,17 +27,23 @@ if not os.path.exists(dbLocation):
 
 
 TaskList = []
+TaskData = []
 ProjectList = []
 
 storage = open(saveLocation,'r+')
 for line in storage:
     if ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 0):
-        TaskList.append(line.rstrip())
+        line = line.split("\t")
+        TaskList.append(line[0])
+        TaskData.append(line[1].rstrip())
+
     elif "-*-*-*-*-*-*-*-*-*-*-*-*-" in line:
         toggle = 1
     else:
         ProjectList.append(line.rstrip())
 storage.close()
+
+print TaskData
 
 cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
             'Go James!',"You're almost there."]
@@ -60,8 +66,12 @@ def timer(start_time):
 def savelist():
     storage = open(saveLocation,'w+')
     storage.truncate()
-    for item in TaskList:
-        storage.write(item)
+    for index,item in enumerate(TaskList):
+        print item,index
+        #storage.write(item)
+        print TaskData[index]
+        storage.write("%(item)s\t%(data)s" % {"item":item,"data":TaskData[index]})
+        #TODO: FIX SO THAT TASKDATA IS STORED IN AN ARRAY WHEN LOADED
         storage.write("\n")
     storage.write("-*-*-*-*-*-*-*-*-*-*-*-*-\n")
     for item in ProjectList:
@@ -71,13 +81,13 @@ def savelist():
 
 def printTodo(toggle):
     if toggle == 'tasks':
-        print "TASK LIST:"
+        print "\033[1;31mTASK LIST:\033[0m"
         for a,b in enumerate(TaskList,1):
-            print '{} {}'.format(a,b)
+            print '\033[1;31m{} \033[0m{}'.format(a,b)
     elif toggle == 'projects':
-        print "ACTIVE PROJECTS:"
+        print "\033[1;34mACTIVE PROJECTS:\033[0m"
         for a,b in enumerate(ProjectList,1):
-            print '{} {}'.format(a,b)
+            print '\033[1;34m{} \033[0m{}'.format(a,b)
 
 atexit.register(timer,start_time = open_time)
 atexit.register(savelist)
@@ -88,6 +98,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
 #TODO Fix to be case-insensitive
     options = []
+    counter = 0
     prompt = raw_input('Enter your command. ')
     os.system('clear')
 
@@ -191,6 +202,9 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
         elif 'task' in prompt[4:9] or (prompt[3] == 't'):
             if prompt[3] == 't':
                 TaskList.insert(0,prompt[5:])
+                TaskData.insert(0,(datetime.date.today(),time.strftime("%H:%M",time.localtime(time.time())),1,"automatic"))
+                print TaskData
+                #date, time, priority, manual/automatic
             else:
                 TaskList.insert(0,prompt[9:])
             printTodo('tasks')
@@ -218,7 +232,6 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
         #ALSO MAKE THE REVERSE POSSIBLE
         #COMPLETED IS NOW THE PROTOTYPE FOR THE COMPLETION TYPE
         if (prompt[:9] == 'completed') or (prompt[(len(prompt)-9):] == 'completed'):
-            #print prompt,"|",prompt[:9],"|",prompt[(len(prompt)-9):]
             for item in TaskList:
                 if prompt[10:] in item:
                     options.append(item)
@@ -227,6 +240,11 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                     if (task_id == options[0]):
                         if "task_start" in globals():
                             timer(task_start)
+                            storage = open(dbLocation,'a+')
+                            storage.write("%(name)s,%(date)s,%(start_time)s,%(end_time)s,%(total_time)s,%(project)s,%(type)s" % \
+                            {"name":task_id,"date":datetime.date.today(),"start_time":task_start,"end_time":time.time(), \
+                            "total_time":time.time()-task_start,"project":task_project,"type":task_type})
+                            storage.close()
                 TaskList.remove(options[0])
                 random.seed()
                 os.system('say "%(a)s completed. %(b)s"' % {"a":options[0],"b":cheers[random.randint(0,6)]})
@@ -280,6 +298,14 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
         printTodo('tasks')
         prompt = raw_input("set new order. ")
         prompt = prompt.split(",")
+        prompt = map(int,prompt)
+        if len(prompt) < len(TaskList):
+            for i in range(0,len(TaskList)):
+                if (i+1) not in prompt:
+                    prompt.append(i+1)
+        for i,j in enumerate(prompt):
+            prompt[i] = prompt[i] - 1
+        print [ TaskList[i] for i in prompt]
         TaskList = [ TaskList[i] for i in prompt]
         printTodo('tasks')
 
@@ -301,9 +327,12 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                                 counter = counter + 1
                         if counter != 1:
                             print "try again"
+                            counter = 0
                     else:
                         task_start = time.time()
                         task_id = options[0]
+                        task_project = "none" #TODO CHANGE THIS TO CORERSPOND TO PROJECT
+                        task_type = "n/a" #TODO CHANGE THIS TO CORRESPOND TO TYPE ONCE LEARNED
                         print "Starting task \"%(x)s\" at %(y)s" % {"x":task_id,"y":datetime.datetime.now().strftime("%I:%M:%S %p, %A, %b %d, %Y")}
                         #fix this so each task has a UID in the database
         else:
