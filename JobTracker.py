@@ -252,7 +252,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     elif prompt[:5] == 'start' or prompt[:5] == 'begin':
         ref = 6
         for index,item in enumerate(TaskList):
-            if prompt[ref :] in item:
+            if prompt[ref :] in item[0]:
                 options.append(index)
         if len(options) == 1:
             index = options[0]
