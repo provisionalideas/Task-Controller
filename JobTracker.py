@@ -3,6 +3,12 @@ import random
 import time
 import atexit
 import datetime
+import operator
+
+
+#TODO SET SYSTEM THAT, ON OPENING/ON START OF NEW DAY, CHECKS FOR "ACTIVE"
+#TASKS AND ZEROS THEM/FIGURE OUT WAY TO DETERMINE/DELINEATE WHEN ONE TASK
+#STARTS AND ANOTHER ONE ENDS
 
 codejob,tutorjob,hcjob,tempjob,restojob,toggle = 0,0,0,0,0,0
 
@@ -28,15 +34,33 @@ ProjectList = []
 
 #LOAD ALL ACTIVE ITEMS INTO ACTIVE STORAGE
 storage = open(saveLocation,'r+')
-for line in storage:
-    if ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 0):
+CurrentTime = datetime.datetime.today()
+if CurrentTime.hour >= 4:
+    LowerBound = datetime.datetime(CurrentTime.year,CurrentTime.month, \
+    CurrentTime.day,4,0,0,0)
+    UpperBound = LowerBound + datetime.timedelta(days = 1)
+else:
+    UpperBound = datetime.datetime(CurrentTime.year,CurrentTime.month, \
+    CurrentTime.day,4,0,0,0)
+    LowerBound = UpperBound - datetime.timedelta(days = 1)
+
+for index, line in enumerate(storage):
+    if index == 0:
+        line = line.rstrip()
+        line = line.split(",")
+        NumTasks = int(line[1])
+        line = datetime.datetime.fromtimestamp(float(line[0]))
+        if (line < LowerBound): NumTasks = 0
+        print line,NumTasks
+    elif ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 1):
         line = line.rstrip()
         line = line.split(",")
         TaskList.append(line)
-    elif "-*-*-*-*-*-*-*-*-*-*-*-*-" in line:
-        toggle = 1
-    else:
+    elif ("-*-*-*-*-*-*-*-*-*-*-*-*-" in line):
+        toggle += 1
+    elif ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 2):
         ProjectList.append(line.rstrip())
+
 storage.close()
 
 cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
@@ -48,7 +72,7 @@ open_time = time.time()
 
 #DEFINE MODULES
 def timer(start_time):
-    total_time = time.time() - start_time
+    total_time = time.time() - float(start_time)
     hours = int(total_time / 3600)
     minutes = int((total_time - (hours*3600)) / 60)
     seconds = int(total_time - (hours*3600) - (minutes*60))
@@ -59,6 +83,8 @@ def timer(start_time):
 def savelist():
     storage = open(saveLocation,'w+')
     storage.truncate()
+    storage.write(str(time.time()) + "," + str(NumTasks) + "\n")
+    storage.write("-*-*-*-*-*-*-*-*-*-*-*-*-\n")
     for item in TaskList:
         for index,element in enumerate(item):
             storage.write(str(element))
@@ -94,7 +120,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     options = []
     counter = 0
     prompt = raw_input('Enter your command. ')
-    os.system('clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     if prompt == "help":
         print "Available commands:"
@@ -145,6 +171,8 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                 ProjectList.insert(0,storage)
                 printTodo('projects')
 
+        savelist()
+
                 #TODO what to do if someone puts something else in?
                 #keyword wcould also be 'task', 'project', 'item', etc.
                 #TODO Make everything case-insensitive
@@ -176,7 +204,11 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                 if TaskList[index][4] != "n/a": timer(TaskList[index][4])
                 TaskList[index][5] = datetime.date.today() #completion date
                 TaskList[index][6] = time.time() #completion time
-                TaskList[index][10] = "completed" if (ref != 7) else "cancelled"
+                if (ref != 7):
+                    TaskList[index][10] = "completed"
+                    NumTasks += 1
+                else:
+                    TaskList[index][10] = "cancelled"
 
         # for index,element in enumerate(item):
         #     storage.write(str(element))
@@ -193,7 +225,11 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                 random.seed()
                 os.system('say "%(a)s %(b)s. %(c)s"' % {"a":TaskList[index][0],"b":TaskList[index][10], \
                 "c":cheers[random.randint(0,6)]})
+                if (NumTasks == 1): print("You've completed %(a)s task so far." % {"a":NumTasks})
+                if (NumTasks > 1): print("You've completed %(a)s tasks so far." % {"a":NumTasks})
                 TaskList.remove(TaskList[index])
+
+        savelist()
 
 # or (prompt[(len(prompt)-9):] == 'completed')
 
@@ -206,6 +242,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
 
     elif prompt[:4] == 'list':
+        os.system('cls' if os.name == 'nt' else 'clear')
         if len(prompt) > 4:
             if prompt[5] == 'p':
                 printTodo('projects')
