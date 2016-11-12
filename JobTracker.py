@@ -24,6 +24,7 @@ saveLocation = saveLocation + "/TaskList.txt"
 dbLocation = os.path.expanduser("~") + "/WorkTracker/TrackerDB.txt"
 if not os.path.exists(saveLocation):
     storage = open(saveLocation,'w+')
+    storage.write(str(time.time()) + "," + str(NumTasks) + "\n")
     storage.close()
 if not os.path.exists(dbLocation):
     storage = open(dbLocation,'w+')
@@ -36,6 +37,8 @@ NumTasks = 0
 #LOAD ALL ACTIVE ITEMS INTO ACTIVE STORAGE
 storage = open(saveLocation,'r+')
 CurrentTime = datetime.datetime.today()
+
+#DETERMINE WHETHER NUMTASKS MAPS TO TODAY OR PREVIOUS DAY
 if CurrentTime.hour >= 4:
     LowerBound = datetime.datetime(CurrentTime.year,CurrentTime.month, \
     CurrentTime.day,4,0,0,0)
@@ -50,7 +53,7 @@ for index, line in enumerate(storage):
         line = line.rstrip()
         line = line.split(",")
         NumTasks = int(line[1])                                     #NumTasks tracks the number of tasks completed today
-        line = datetime.datetime.fromtimestamp(float(line[0]))
+        line = datetime.datetime.fromtimestamp(float(line[0]))      #Sets previous time
         if (line < LowerBound): NumTasks = 0
     elif ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 1):
         line = line.rstrip()
