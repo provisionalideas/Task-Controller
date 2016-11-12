@@ -101,6 +101,7 @@ def savelist():
     storage.close()
 
 def printTodo(toggle):
+    os.system('cls' if os.name == 'nt' else 'clear')
     SubTaskList = []
     if toggle == 'tasks':
         print "\033[1;31mTASK LIST:\033[0m"
@@ -386,7 +387,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
 
 
 
-    #JOB APPLICATION MODULE
+    #JOB APPLICATION MODULE --> prototype for project/task tracker
     elif prompt == "Apply to jobs.":
         while prompt in ['Apply to jobs.','1','2','3','4','5']:
 
