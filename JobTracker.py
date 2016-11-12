@@ -11,6 +11,9 @@ import operator
 #STARTS AND ANOTHER ONE ENDS
 
 codejob,tutorjob,hcjob,tempjob,restojob,toggle = 0,0,0,0,0,0
+TaskList = []
+ProjectList = []
+NumTasks = 0
 
 saveLocation = os.path.expanduser("~") + "/WorkTracker"
 
@@ -29,10 +32,6 @@ if not os.path.exists(saveLocation):
 if not os.path.exists(dbLocation):
     storage = open(dbLocation,'w+')
     storage.close()
-
-TaskList = []
-ProjectList = []
-NumTasks = 0
 
 #LOAD ALL ACTIVE ITEMS INTO ACTIVE STORAGE
 storage = open(saveLocation,'r+')
@@ -362,6 +361,7 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
         storage.close()
         print "List cleared."
     #TODO IMPROVE CLEAR SYSTEM SO YOU CAN SELECT CLEARING TASK LIST OR PROJECTS LIST OR BOTH
+    #TODO SET CLEAR FUNCTION TO SET ALL TASKS IN DATABASE TO "CANCELLED"
 
         #TODO improve list storage system, change storage location
         #TODO add mechanism to remove completed items from list
