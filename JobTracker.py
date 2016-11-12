@@ -31,6 +31,7 @@ if not os.path.exists(dbLocation):
 
 TaskList = []
 ProjectList = []
+NumTasks = 0
 
 #LOAD ALL ACTIVE ITEMS INTO ACTIVE STORAGE
 storage = open(saveLocation,'r+')
@@ -45,13 +46,12 @@ else:
     LowerBound = UpperBound - datetime.timedelta(days = 1)
 
 for index, line in enumerate(storage):
-    if index == 0:
+    if (index == 0):
         line = line.rstrip()
         line = line.split(",")
-        NumTasks = int(line[1])
+        NumTasks = int(line[1])                                     #NumTasks tracks the number of tasks completed today
         line = datetime.datetime.fromtimestamp(float(line[0]))
         if (line < LowerBound): NumTasks = 0
-        print line,NumTasks
     elif ("-*-*-*-*-*-*-*-*-*-*-*-*-" not in line) and (toggle == 1):
         line = line.rstrip()
         line = line.split(",")
@@ -99,14 +99,30 @@ def savelist():
     storage.close()
 
 def printTodo(toggle):
+    SubTaskList = []
     if toggle == 'tasks':
         print "\033[1;31mTASK LIST:\033[0m"
         for a,b in enumerate(TaskList,1):
+            print '\033[1;31m{} \033[0m{}'.format(a,b[0])
+    elif toggle == 'current_tasks':
+        print "\033[1;31mCURRENT TASKS:\033[0m"
+        for a,b in enumerate(TaskList[1:6],1):
             print '\033[1;31m{} \033[0m{}'.format(a,b[0])
     elif toggle == 'projects':
         print "\033[1;34mACTIVE PROJECTS:\033[0m"
         for a,b in enumerate(ProjectList,1):
             print '\033[1;34m{} \033[0m{}'.format(a,b)
+    else:
+        for a,b in enumerate(TaskList,1):
+            if toggle in b[0]:
+                SubTaskList.append(b)
+        if len(SubTaskList) > 0:
+            print "\033[1;31mTASK LIST:\033[0m"
+            for a,b in enumerate(SubTaskList,1):
+                print '\033[1;31m{} \033[0m{}'.format(a,b[0])
+        else:
+            printTodo('current_tasks')
+
 
 atexit.register(timer,start_time = open_time)
 atexit.register(savelist)
@@ -223,8 +239,8 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
                     if element < (len(TaskList[index]) - 1): storage.write(",")
                 storage.write("\n")
                 random.seed()
-                os.system('say "%(a)s %(b)s. %(c)s"' % {"a":TaskList[index][0],"b":TaskList[index][10], \
-                "c":cheers[random.randint(0,6)]})
+                #os.system('say "%(a)s %(b)s. %(c)s"' % {"a":TaskList[index][0],"b":TaskList[index][10], \
+                #"c":cheers[random.randint(0,6)]})
                 if (NumTasks == 1): print("You've completed %(a)s task so far." % {"a":NumTasks})
                 if (NumTasks > 1): print("You've completed %(a)s tasks so far." % {"a":NumTasks})
                 TaskList.remove(TaskList[index])
@@ -244,16 +260,18 @@ while (prompt != 'EXIT') and (prompt != 'exit'):
     elif prompt[:4] == 'list':
         os.system('cls' if os.name == 'nt' else 'clear')
         if len(prompt) > 4:
-            if prompt[5] == 'p':
+            if prompt[5:12] == 'project':
                 printTodo('projects')
-            elif prompt[5] == 't':
+            elif prompt[5:9] == 'task':
+                printTodo('tasks')
+            elif prompt[5:8] == 'all':
+                printTodo('projects')
                 printTodo('tasks')
             else:
-                printTodo('projects')
-                printTodo('tasks')
+                printTodo(prompt[5:])
         else:
-            printTodo('projects')
-            printTodo('tasks')
+            #printTodo('projects')
+            printTodo('current_tasks')
 
 
     elif prompt[:10] == 'prioritize':
