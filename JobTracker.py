@@ -13,7 +13,7 @@ import operator
 #STARTS AND ANOTHER ONE ENDS
 
 class JobTracker:
-  codejob,tutorjob,hcjob,tempjob,restojob = 0,0,0,0,0,0
+  codejob,tutorjob,hcjob,tempjob,restojob = 0,0,0,0,0
   TaskList = []
   ProjectList = []
   NumTasks = 0
@@ -22,7 +22,7 @@ class JobTracker:
   open_time = 0
 
   cheers = ['Good job!','Keep going!',"You're doing well!","Keep it up!","Yaaaay!",
-              'Go James!',"You're almost there."]
+              'Hooray!',"You're almost there."]
 
   def init(self):
       self.saveLocation = os.path.expanduser("~") + "/WorkTracker"
@@ -34,13 +34,13 @@ class JobTracker:
       if not os.path.exists(self.saveLocation):
           os.makedirs(self.saveLocation)
       self.saveLocation = self.saveLocation + "/TaskList.txt"
-      dbLocation = os.path.expanduser("~") + "/WorkTracker/TrackerDB.txt"
+      self.dbLocation = os.path.expanduser("~") + "/WorkTracker/TrackerDB.txt"
       if not os.path.exists(self.saveLocation):
           storage = open(self.saveLocation,'w+')
           storage.write(str(time.time()) + "," + str(self.NumTasks) + "\n")
           storage.close()
-      if not os.path.exists(dbLocation):
-          storage = open(dbLocation,'w+')
+      if not os.path.exists(self.dbLocation):
+          storage = open(self.dbLocation,'w+')
           storage.close()
 
       #LOAD ALL ACTIVE ITEMS INTO ACTIVE STORAGE
@@ -243,7 +243,7 @@ class JobTracker:
               # # storage.write(item)
               # storage.write("\n")
 
-                      storage = open(dbLocation,'a+')
+                      storage = open(self.dbLocation,'a+')
                       for element in range(0,len(self.TaskList[index])):
                           storage.write(str(self.TaskList[index][element]))
                           if element < (len(self.TaskList[index]) - 1): storage.write(",")
