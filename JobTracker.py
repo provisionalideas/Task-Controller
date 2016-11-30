@@ -115,7 +115,7 @@ class JobTracker:
               print '\033[1;31m{} \033[0m{}'.format(a,b[0])
       elif toggle == 'current_tasks':
           print "\033[1;31mCURRENT TASKS:\033[0m"
-          for a,b in enumerate(self.TaskList[1:6],1):
+          for a,b in enumerate(self.TaskList[0:5],1):
               print '\033[1;31m{} \033[0m{}'.format(a,b[0])
       elif toggle == 'projects':
           print "\033[1;34mACTIVE PROJECTS:\033[0m"
