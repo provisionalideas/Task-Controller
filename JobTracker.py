@@ -12,11 +12,22 @@ import operator
 #TASKS AND ZEROS THEM/FIGURE OUT WAY TO DETERMINE/DELINEATE WHEN ONE TASK
 #STARTS AND ANOTHER ONE ENDS
 
+class colours:
+    red = '\033[1;31m'
+    clear = '\033[0m'
+    blue = '\033[1;34m'
+
+class clearscreen:
+    def clear(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
+
 class JobTracker:
   codejob,tutorjob,hcjob,tempjob,restojob = 0,0,0,0,0
   TaskList = []
   ProjectList = []
   NumTasks = 0
+  colours = colours()
+  my_clear = clearscreen()
 
   saveLocation = ''
   open_time = 0
@@ -107,28 +118,28 @@ class JobTracker:
       storage.close()
 
   def printTodo(self,toggle):
-      os.system('cls' if os.name == 'nt' else 'clear')
+      #os.system('cls' if os.name == 'nt' else 'clear')
       SubTaskList = []
       if toggle == 'tasks':
-          print "\033[1;31mTASK LIST:\033[0m"
+          print colours.red + "TASK LIST:" + colours.clear
           for a,b in enumerate(self.TaskList,1):
-              print '\033[1;31m{} \033[0m{}'.format(a,b[0])
+              print colours.red + '{} '.format(a) + colours.clear + '{}'.format(b[0])
       elif toggle == 'current_tasks':
-          print "\033[1;31mCURRENT TASKS:\033[0m"
+          print colours.red + "CURRENT TASKS:" + colours.clear
           for a,b in enumerate(self.TaskList[0:5],1):
-              print '\033[1;31m{} \033[0m{}'.format(a,b[0])
+              print colours.red + '{} '.format(a) + colours.clear + '{}'.format(b[0])
       elif toggle == 'projects':
-          print "\033[1;34mACTIVE PROJECTS:\033[0m"
+          print colours.blue + "ACTIVE PROJECTS:" + colours.clear
           for a,b in enumerate(self.ProjectList,1):
-              print '\033[1;34m{} \033[0m{}'.format(a,b)
+              print colours.blue + '{} '.format(a) + colours.clear + '{}'.format(b)
       else:
           for a,b in enumerate(self.TaskList,1):
               if toggle in b[0]:
                   SubTaskList.append(b)
           if len(SubTaskList) > 0:
-              print "\033[1;31mTASK LIST:\033[0m"
+              print colours.red + "TASK LIST:" + colours.clear
               for a,b in enumerate(SubTaskList,1):
-                  print '\033[1;31m{} \033[0m{}'.format(a,b[0])
+                  print colours.red + '{} '.format(a) + colours.clear + '{}'.format(b[0])
           else:
               self.printTodo('current_tasks')
 
@@ -146,7 +157,7 @@ class JobTracker:
           options = []
           counter = 0
           prompt = raw_input('Enter your command. ')
-          os.system('cls' if os.name == 'nt' else 'clear')
+          self.my_clear.clear() #os.system('cls' if os.name == 'nt' else 'clear')
 
           if prompt == "help":
               print "Available commands:"
@@ -268,7 +279,7 @@ class JobTracker:
 
 
           elif prompt[:4] == 'list':
-              os.system('cls' if os.name == 'nt' else 'clear')
+              self.my_clear.clear() #os.system('cls' if os.name == 'nt' else 'clear')
               if len(prompt) > 4:
                   if prompt[5:12] == 'project':
                       self.printTodo('projects')
@@ -468,7 +479,7 @@ class JobTracker:
 
                   #TODO set dynamic number of job types, autonomously set goals, etc. in goal setting component.
 
-                  os.system('clear')
+                  self.my_clear.clear() #os.system('clear')
 
                   if prompt in ['Apply to jobs.','1','2','3','4','5']:
                       random.seed()
